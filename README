@@ -97,7 +97,7 @@ MYSQL_ROOT_PASSWORD=rootpassword
 ## 📝 Notas
 
 * Asegúrate de que los puertos no estén en uso antes de levantar los servicios.
-* Puedes modificar la configuración de NginX en `nginx/ngin.conf`.
+* Puedes modificar la configuración de NginX en `nginx/nginx.conf`.
 
 ## 📖 Licencia
 
