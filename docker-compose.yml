@@ -1,0 +1,57 @@
+services:
+  wordpress:
+    image: wordpress:php8.2-fpm-alpine
+    container_name: wordpress
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - WORDPRESS_DB_HOST=$WORDPRESS_DB_HOST
+      - WORDPRESS_DB_USER=$WORDPRESS_DB_USER
+      - WORDPRESS_DB_PASSWORD=$WORDPRESS_DB_PASSWORD
+      - WORDPRESS_DB_NAME=$WORDPRESS_DB_NAME
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+      - app-network
+    depends_on:
+      - db
+  db:
+    image: mysql:8.4.4
+    container_name: db
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - MYSQL_DATABASE=$WORDPRESS_DB_NAME
+      - MYSQL_USER=$WORDPRESS_DB_USER
+      - MYSQL_PASSWORD=$WORDPRESS_DB_PASSWORD
+      - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - app-network
+
+  webserver:
+    depends_on:
+      - wordpress
+    image: nginx:stable
+    container_name: webserver
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - wordpress:/var/www/html
+      - ./nginx-conf:/etc/nginx/conf.d
+      - ./nginx-conf/ssl/certificate.crt:/etc/nginx/ssl/certificate.crt
+      - ./nginx-conf/ssl/private.key:/etc/nginx/ssl/private.key
+    networks:
+      - app-network
+
+volumes:
+  wordpress:
+  dbdata:
+
+
+networks:
+  app-network:
+    driver: bridge
